@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login into Yandex Cloud
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YANDEX_SA_JSON_CREDENTIALS }}
+
+      - name: Build
+        env:
+          API_HOST: ${{ secrets.API_HOST }}
+          API_PORT: ${{ secrets.API_PORT }}
+          API_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/api:${{ github.sha }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          APP_PORT: ${{ secrets.APP_PORT }}
+          APP_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/app:${{ github.sha }}
+          SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        run: |  
+          BASE_DIR=$PWD
+          
+          cd $BASE_DIR/api && \
+            docker build \
+              --build-arg ENV_FILE="$ENV_FILE" \
+              -f ./Dockerfile \
+              -t $API_DOCKER_IMAGE .
+            docker push $API_DOCKER_IMAGE
+
+          cd $BASE_DIR/app && \
+            docker build \
+              -f ./Dockerfile \
+              -t $APP_DOCKER_IMAGE .
+            docker push $APP_DOCKER_IMAGE
+
+      - name: Deploy
+        uses: yc-actions/yc-coi-deploy@v1
+        env:
+          API_HOST: ${{ secrets.API_HOST }}
+          API_PORT: ${{ secrets.API_PORT }}
+          API_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/api:${{ github.sha }}
+          APP_HOST: ${{ secrets.APP_HOST }}
+          APP_PORT: ${{ secrets.APP_PORT }}
+          APP_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/app:${{ github.sha }}
+          SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
+          ENV_FILE: ${{ secrets.ENV_FILE }}
+        with:
+          yc-sa-json-credentials: ${{ secrets.YANDEX_SA_JSON_CREDENTIALS }}
+          folder-id: ${{ secrets.VM_FOLDER_ID }}
+          VM-name: ${{ secrets.VM_NAME }}
+          vm-service-account-id: ${{ secrets.VM_SERVICE_ACCOUNT_ID }}
+          vm-cores: 2
+          vm-memory: 2048Mb
+          vm-core-fraction: 100
+          vm-subnet-id: ${{ secrets.VM_SUBNET_ID }}
+          user-data-path: './ci/user-data.yaml'
+          docker-compose-path: './ci/docker-compose.yaml'
