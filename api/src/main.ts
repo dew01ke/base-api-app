@@ -6,12 +6,13 @@ import {
   SwaggerDocumentOptions,
 } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { Request } from 'express';
 import { Config } from '@/config';
 import { AppModule } from '@/app.module';
 
-function validateCorsOrigin(corsOrigin: string) {
-  return (origin, callback) => {
-    if (!origin || corsOrigin.includes(origin)) {
+function validateCorsOrigin(allowedHosts: string[]) {
+  return (request: Request, callback) => {
+    if (allowedHosts.includes(request.hostname)) {
       callback(null, true);
     } else {
       callback(new Error('This origin is not allowed'));
@@ -38,11 +39,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   app.use(helmet());
-  app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-  });
+  app.enableCors(validateCorsOrigin(config.ALLOWED_HOSTS));
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

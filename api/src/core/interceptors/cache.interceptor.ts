@@ -15,7 +15,6 @@ import { Config } from '@/config';
 
 enum CacheProperties {
   CACHE_TTL = 'CACHE_TTL',
-  CACHE_BY_USER = 'CACHE_BY_USER',
   NO_CACHE = 'NO_CACHE',
 }
 

@@ -1,10 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
-import { routes } from '@/infrastructure/configs/app.routes';
+import { NoCache } from '@/core/interceptors/cache.interceptor';
+import { routes } from '@/infrastructure/configs/routes';
 import { ExampleService } from './example.service';
 import { Response } from '@/core/utils/Response';
 import { GetExampleRequest } from '@/dtos/example.request.dto';
 import { Config } from '@/config';
+import { ExampleResponse } from '@/dtos/example.response.dto';
 
 @Controller()
 export class ExampleController {
@@ -13,19 +15,20 @@ export class ExampleController {
     private readonly exampleService: ExampleService,
   ) {}
 
-  @Get(routes.example.single)
+  @Get(routes.example.cached)
   @ApiResponse({ status: 200, type: Response })
-  async example(
+  async cached(
     @Query() params: GetExampleRequest,
   ) {
-    return 'example';
+    return `cached_${Math.random()}`;
   }
 
-  @Get(routes.example.print_number)
+  @Get(routes.example.random)
+  @NoCache()
   @ApiResponse({ status: 200, type: Response })
-  async examplePrintNumber(
+  async random(
     @Query() params: GetExampleRequest,
   ) {
-    return this.exampleService.decorateNumber(params.count);
+    return new ExampleResponse('test', this.exampleService.decorateNumber(params.count));
   }
 }
