@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { HttpException, HttpStatus, ValidationPipe } from '@nestjs/common';
 import {
   SwaggerModule,
   DocumentBuilder,
@@ -10,12 +10,18 @@ import { Request } from 'express';
 import { Config } from '@/config';
 import { AppModule } from '@/app.module';
 
+const url = require('url');
+
 function validateCorsOrigin(allowedHosts: string[]) {
   return (request: Request, callback) => {
-    if (allowedHosts.includes(request.hostname)) {
+    const originUrl = url.parse(request.get('origin') || '');
+    const isSelfHost = originUrl.hostname === request.hostname;
+    const isAllowedHost = allowedHosts.includes(originUrl.hostname);
+
+    if (!originUrl.hostname || isSelfHost || isAllowedHost) {
       callback(null, true);
     } else {
-      callback(new Error('This origin is not allowed'));
+      callback(new HttpException(null, HttpStatus.FORBIDDEN));
     }
   };
 }
