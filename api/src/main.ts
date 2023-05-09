@@ -36,7 +36,10 @@ function useSwagger(app) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(Config);
-  app.setGlobalPrefix('api');
+
+  if (config.API_PREFIX) {
+    app.setGlobalPrefix(config.API_PREFIX);
+  }
 
   app.use(helmet());
   app.enableCors(validateCorsOrigin(config.ALLOWED_HOSTS));

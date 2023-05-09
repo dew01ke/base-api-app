@@ -10,6 +10,9 @@ export class Config {
   public readonly APP_PORT: number;
 
   @Allow()
+  public readonly API_PREFIX: string = 'api';
+
+  @Allow()
   @Transform(({ value }) => (value.split(',') || []))
   public readonly ALLOWED_HOSTS: string[];
 
