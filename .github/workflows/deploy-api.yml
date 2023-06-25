@@ -22,9 +22,6 @@ jobs:
           API_HOST: ${{ secrets.API_HOST }}
           API_PORT: ${{ secrets.API_PORT }}
           API_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/api:${{ github.sha }}
-          APP_HOST: ${{ secrets.APP_HOST }}
-          APP_PORT: ${{ secrets.APP_PORT }}
-          APP_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/app:${{ github.sha }}
           SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
           ENV_FILE: ${{ secrets.ENV_FILE }}
         run: |  
@@ -37,21 +34,12 @@ jobs:
               -t $API_DOCKER_IMAGE .
             docker push $API_DOCKER_IMAGE
 
-          cd $BASE_DIR/app && \
-            docker build \
-              -f ./Dockerfile \
-              -t $APP_DOCKER_IMAGE .
-            docker push $APP_DOCKER_IMAGE
-
       - name: Deploy
         uses: yc-actions/yc-coi-deploy@v1
         env:
           API_HOST: ${{ secrets.API_HOST }}
           API_PORT: ${{ secrets.API_PORT }}
           API_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/api:${{ github.sha }}
-          APP_HOST: ${{ secrets.APP_HOST }}
-          APP_PORT: ${{ secrets.APP_PORT }}
-          APP_DOCKER_IMAGE: cr.yandex/${{ secrets.YANDEX_REGISTRY_ID }}/app:${{ github.sha }}
           SSL_EMAIL: ${{ secrets.SSL_EMAIL }}
           ENV_FILE: ${{ secrets.ENV_FILE }}
         with:
