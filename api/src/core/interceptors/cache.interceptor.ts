@@ -24,20 +24,20 @@ export const NoCache = () => SetMetadata(CacheProperties.NO_CACHE, true);
 
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
-    private constructor(
+    public constructor(
         private readonly config: Config,
         private readonly reflector: Reflector,
         @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     ) {
     }
 
-    private generateKey(context: ExecutionContext): string {
+    private buildCacheKey(context: ExecutionContext): string {
         const request = context.switchToHttp().getRequest<Request>();
 
         return `${request.url}`;
     }
 
-    private async intercept(
+    public async intercept(
         context: ExecutionContext,
         next: CallHandler,
     ): Promise<Observable<unknown>> {
@@ -45,24 +45,24 @@ export class CacheInterceptor implements NestInterceptor {
             CacheProperties.NO_CACHE,
             context.getHandler(),
         );
-        const skipCache = context.switchToHttp().getRequest<Request>().method !== 'GET';
+        const isGetRequest = context.switchToHttp().getRequest<Request>().method === 'GET';
 
-        if (noCache || skipCache) {
+        if (noCache || !isGetRequest) {
             return next.handle();
         }
 
         const ttl = this.reflector.get(CacheProperties.CACHE_TTL, context.getHandler())
             || this.config.CACHE_TTL;
-        const key = this.generateKey(context);
-        const cached = await this.cacheManager.get(key);
+        const cacheKey = this.buildCacheKey(context);
+        const cacheData = await this.cacheManager.get(cacheKey);
 
-        if (cached) {
-            return of(cached);
+        if (cacheData) {
+            return of(cacheData);
         }
 
         return next.handle().pipe(
             map(async (data: unknown) => {
-                await this.cacheManager.set(key, data, ttl);
+                await this.cacheManager.set(cacheKey, data, ttl);
 
                 return data;
             }),

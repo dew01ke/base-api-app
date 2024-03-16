@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 
 import { ExampleService } from './example.service';
@@ -12,8 +12,9 @@ import { routes } from '@/infrastructure/configs/routes';
 
 @Controller()
 export class ExampleController {
-    private constructor(
+    public constructor(
         private readonly config: Config,
+        private readonly logger: Logger,
         private readonly exampleService: ExampleService,
     ) {
     }
@@ -23,6 +24,8 @@ export class ExampleController {
     private cached(
         @Query() params: GetExampleRequest,
     ) {
+        this.logger.log('cached hit');
+
         return `cached_${Math.random()}_${params.count}`;
     }
 
@@ -32,6 +35,8 @@ export class ExampleController {
     private random(
         @Query() params: GetExampleRequest,
     ) {
+        this.logger.log('random hit');
+
         return new ExampleResponse('test', this.exampleService.decorateNumber(params.count));
     }
 }

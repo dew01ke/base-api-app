@@ -79,6 +79,7 @@ module.exports = {
             }
         }
     ],
+    ignorePatterns: ['dist/**/*'],
     rules: {
         'no-async-promise-executor': ['error'],
         'no-await-in-loop': ['error'],

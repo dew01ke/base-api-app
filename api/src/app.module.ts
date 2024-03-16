@@ -1,5 +1,5 @@
 import { CacheModule } from '@nestjs/cache-manager';
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer, Logger } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 
@@ -20,6 +20,7 @@ import { ExampleModule } from '@/modules/example/example.module';
     ],
     controllers: [],
     providers: [
+        Logger,
         {
             provide: APP_INTERCEPTOR,
             useClass: CacheInterceptor,

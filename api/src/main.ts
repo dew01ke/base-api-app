@@ -1,12 +1,27 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from '@nestjs/swagger';
 import helmet from 'helmet';
+import { WinstonModule } from 'nest-winston';
+import { createLogger, transports } from 'winston';
 
 import { AppModule } from '@/app.module';
 import { Config } from '@/config';
 
-function useSwagger(app: INestApplication) {
+const getLogger = () => {
+    const logger = createLogger({
+        transports: [
+            new transports.Console()
+        ]
+    });
+
+    return WinstonModule.createLogger({
+        instance: logger
+    });
+}
+
+function useSwagger(app: NestExpressApplication) {
     const config = new DocumentBuilder().build();
     const options: SwaggerDocumentOptions = {
         operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
@@ -20,7 +35,9 @@ function useSwagger(app: INestApplication) {
 }
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+        logger: getLogger()
+    });
     const config = app.get(Config);
 
     if (config.API_PREFIX) {
@@ -37,8 +54,6 @@ async function bootstrap() {
     useSwagger(app);
 
     await app.listen(config.APP_PORT, config.APP_HOST);
-
-    console.log('Application is running on:', await app.getUrl());
 }
 
 bootstrap();

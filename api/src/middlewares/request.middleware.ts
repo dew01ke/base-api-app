@@ -1,21 +1,29 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 import { Config } from '@/config';
 
 @Injectable()
-export class RequestMiddleware implements NestMiddleware {
-    private constructor(
+export class RequestMiddleware implements NestMiddleware<Request, Response> {
+    public constructor(
         private readonly config: Config,
+        private readonly logger: Logger
     ) {
     }
 
-    private use(
-        req: Request,
-        res: Response,
+    public use(
+        request: Request,
+        response: Response,
         next: NextFunction,
     ) {
-        console.log('[Request]', req.ip, 'requested', req.originalUrl, req.query);
+        const { ip, method, path: url } = request;
+        const userAgent = request.get('user-agent') || '';
+
+        response.once('close', () => {
+            const { statusCode } = response;
+
+            this.logger.log(`[${method}] [${statusCode}] [${ip}] ${url} (${userAgent})`);
+        });
 
         next();
     }
