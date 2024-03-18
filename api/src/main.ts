@@ -21,7 +21,7 @@ const getLogger = () => {
     });
 }
 
-function useSwagger(app: NestExpressApplication) {
+const useSwagger = (app: NestExpressApplication) => {
     const config = new DocumentBuilder().build();
     const options: SwaggerDocumentOptions = {
         operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
@@ -45,6 +45,11 @@ async function bootstrap() {
     }
 
     app.use(helmet());
+    app.enableCors({
+        origin: config.CORS_ORIGIN,
+        methods: config.CORS_METHODS,
+        allowedHeaders: config.CORS_ALLOWED_HEADERS,
+    })
     app.useGlobalPipes(
         new ValidationPipe({
             whitelist: true,
