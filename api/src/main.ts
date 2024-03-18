@@ -1,8 +1,8 @@
+import helmet from '@fastify/helmet';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from "@nestjs/platform-express";
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions } from '@nestjs/swagger';
-import helmet from 'helmet';
 import { WinstonModule } from 'nest-winston';
 import { createLogger, transports } from 'winston';
 
@@ -21,7 +21,7 @@ const getLogger = () => {
     });
 }
 
-const useSwagger = (app: NestExpressApplication) => {
+const useSwagger = (app: NestFastifyApplication) => {
     const config = new DocumentBuilder().build();
     const options: SwaggerDocumentOptions = {
         operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
@@ -35,16 +35,21 @@ const useSwagger = (app: NestExpressApplication) => {
 }
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-        logger: getLogger()
-    });
+    const app = await NestFactory.create<NestFastifyApplication>(
+        AppModule,
+        new FastifyAdapter(),
+        {
+            logger: getLogger()
+        }
+    );
     const config = app.get(Config);
 
     if (config.API_PREFIX) {
         app.setGlobalPrefix(config.API_PREFIX);
     }
 
-    app.use(helmet());
+    await app.register(helmet);
+
     app.enableCors({
         origin: config.CORS_ORIGIN,
         methods: config.CORS_METHODS,

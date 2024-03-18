@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Cache } from 'cache-manager';
-import { Request } from 'express';
+import { FastifyRequest } from 'fastify';
 import { Observable, of, map } from 'rxjs';
 
 import { Config } from '@/config';
@@ -32,7 +32,7 @@ export class CacheInterceptor implements NestInterceptor {
     }
 
     private buildCacheKey(context: ExecutionContext): string {
-        const request = context.switchToHttp().getRequest<Request>();
+        const request = context.switchToHttp().getRequest<FastifyRequest>();
 
         return `${request.url}`;
     }
@@ -45,7 +45,7 @@ export class CacheInterceptor implements NestInterceptor {
             CacheProperties.NO_CACHE,
             context.getHandler(),
         );
-        const isGetRequest = context.switchToHttp().getRequest<Request>().method === 'GET';
+        const isGetRequest = context.switchToHttp().getRequest<FastifyRequest>().method === 'GET';
 
         if (noCache || !isGetRequest) {
             return next.handle();

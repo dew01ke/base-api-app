@@ -5,7 +5,8 @@ import { TypedConfigModule, dotenvLoader } from 'nest-typed-config';
 
 import { Config } from '@/config';
 import { CacheInterceptor } from '@/core/interceptors/cache.interceptor';
-import { RequestMiddleware } from '@/middlewares/request.middleware';
+import { RequestInterceptor } from '@/core/interceptors/request.interceptor';
+import { ExampleMiddleware } from '@/middlewares/example.middleware';
 import { ExampleModule } from '@/modules/example/example.module';
 
 @Module({
@@ -25,10 +26,14 @@ import { ExampleModule } from '@/modules/example/example.module';
             provide: APP_INTERCEPTOR,
             useClass: CacheInterceptor,
         },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: RequestInterceptor,
+        },
     ],
 })
 export class AppModule {
     private configure(consumer: MiddlewareConsumer) {
-        consumer.apply(RequestMiddleware).forRoutes('*');
+        consumer.apply(ExampleMiddleware).forRoutes('*');
     }
 }
