@@ -1,14 +1,14 @@
 import { Controller, Get, Logger, Query } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 
-import { ExampleService } from './example.service';
+import { ExampleService } from '../services/example.service';
 
-import { Config } from '@/config';
-import { NoCache } from '@/core/interceptors/cache.interceptor';
-import { Response } from '@/core/transformers/Response';
-import { GetExampleRequest } from '@/dtos/example.request.dto';
-import { ExampleResponse } from '@/dtos/example.response.dto';
-import { routes } from '@/infrastructure/configs/routes';
+import { Config } from '@/configs/app.config';
+import { routes } from '@/configs/app.routes';
+import { NoCache } from '@/lib/interceptors/cache.interceptor';
+import { Response } from '@/lib/transformers/Response';
+import { GetExampleRequest } from '@/modules/example/dtos/example.request.dto';
+import { ExampleResponse } from '@/modules/example/dtos/example.response.dto';
 
 @Controller()
 export class ExampleController {
@@ -37,6 +37,9 @@ export class ExampleController {
     ) {
         this.logger.log('random hit');
 
-        return new ExampleResponse('test', this.exampleService.decorateNumber(params.count));
+        const randomString = String(Math.random());
+        const decoratedCount = this.exampleService.decorateNumber(params.count);
+
+        return new ExampleResponse(randomString, decoratedCount);
     }
 }

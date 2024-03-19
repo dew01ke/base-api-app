@@ -12,7 +12,7 @@ import { Cache } from 'cache-manager';
 import { FastifyRequest } from 'fastify';
 import { Observable, of, map } from 'rxjs';
 
-import { Config } from '@/config';
+import { Config } from '@/configs/app.config';
 
 enum CacheProperties {
     CACHE_TTL = 'CACHE_TTL',

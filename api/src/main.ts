@@ -7,7 +7,7 @@ import { WinstonModule } from 'nest-winston';
 import { createLogger, transports } from 'winston';
 
 import { AppModule } from '@/app.module';
-import { Config } from '@/config';
+import { Config } from '@/configs/app.config';
 
 const getLogger = () => {
     const logger = createLogger({

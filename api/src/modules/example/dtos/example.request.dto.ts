@@ -11,6 +11,6 @@ export class GetExampleRequest {
     @IsInt()
     @Max(100)
     @IsOptional()
-    @Type(() => () => Number)
+    @Type(() => Number)
     public count: number = 0;
 }

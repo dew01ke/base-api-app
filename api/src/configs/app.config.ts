@@ -6,14 +6,14 @@ export class Config {
     public readonly APP_HOST: string;
 
     @Allow()
-    @Type(() => () => Number)
+    @Type(() => Number)
     public readonly APP_PORT: number;
 
     @Allow()
     public readonly API_PREFIX: string = 'api';
 
     @Allow()
-    @Type(() => () => Number)
+    @Type(() => Number)
     public readonly CACHE_TTL: number = 60 * 60 * 1000;
 
     @Allow()

@@ -2,7 +2,8 @@ import {
     Injectable,
     NestInterceptor,
     ExecutionContext,
-    CallHandler, Logger
+    CallHandler,
+    Logger
 } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Observable, tap } from 'rxjs';
