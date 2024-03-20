@@ -61,6 +61,7 @@ async function bootstrap() {
             transform: true,
         }),
     );
+    app.enableShutdownHooks();
     useSwagger(app);
 
     await app.listen(config.APP_PORT, config.APP_HOST);
