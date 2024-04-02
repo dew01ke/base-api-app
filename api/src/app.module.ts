@@ -7,7 +7,11 @@ import { Config } from '@/configs/app.config';
 import { CacheInterceptor } from '@/lib/interceptors/cache.interceptor';
 import { RequestInterceptor } from '@/lib/interceptors/request.interceptor';
 import { ExampleMiddleware } from '@/lib/middlewares/example.middleware';
-import { ExampleModule } from '@/modules/example/example.module';
+import { ExampleModule } from '@/modules/example-module/example.module';
+
+const APPLICATION_MODULES = [
+    ExampleModule,
+];
 
 @Module({
     imports: [
@@ -17,7 +21,7 @@ import { ExampleModule } from '@/modules/example/example.module';
             schema: Config,
             load: dotenvLoader(),
         }),
-        ExampleModule,
+        ...APPLICATION_MODULES
     ],
     controllers: [],
     providers: [

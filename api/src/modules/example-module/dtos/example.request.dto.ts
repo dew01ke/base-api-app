@@ -2,7 +2,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max } from 'class-validator';
 
-export class GetExampleRequest {
+export class ExampleRequestDto {
     @ApiPropertyOptional({
         minimum: 0,
         maximum: 100,
